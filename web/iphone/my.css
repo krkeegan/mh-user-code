@@ -1,0 +1,15 @@
+/*Removes the left and right padding on buttons*/
+.ui-collapsible-content
+{
+    padding: 10px 0;
+}
+
+/*Decreases the width of a button*/
+.ui-btn-inner {
+    padding: .6em 16px;
+}
+
+/* Align the buttons in the center */
+.ui-collapsible-content {
+    text-align: center;
+}

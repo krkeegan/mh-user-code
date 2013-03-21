@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <title>MrHouse</title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+        <link rel="stylesheet" href="my.css?<!--#include code="&mobile_css_mtime"-->" />
+        <style>
+            /* App custom styles */
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.js">
+        </script>
+        <script src="my.js?<!--#include code="&mobile_js_mtime"-->">
+        </script>
+    </head>
+
+    <body onload="updateState()">
+        <!-- Run html5WebApp sub -->
+<!--#include code="&html5WebApp('Main','main')"-->
+        <!-- /End html5WebApp sub -->
+
+        <!-- Manual Log TOC Page -->
+
+        <div data-role="page" id="page_Logs">
+            <div data-theme="a" data-role="header">
+                <h3>
+                    Logs
+                </h3>
+            </div>
+            <div data-role="content">
+                <ul data-role="listview" data-divider-theme="b" data-inset="true">
+                    <li data-theme="c">
+                        <a href="log.shtml" data-transition="slide">
+                            Print Log
+                        </a>
+                    </li>
+                    <li data-theme="c">
+                        <a href="#" data-transition="slide">
+                            Error Log
+                        </a>
+                    </li>
+                    <li data-theme="c">
+                        <a href="#" data-transition="slide">
+                            Speech Log
+                        </a>
+                    </li>
+                    <li data-theme="c">
+                        <a href="#" data-transition="slide">
+                            Display Log
+                        </a>
+                    </li>
+                </ul>
+            </div>
+<!--#include code="&mobile_footer()"-->
+        </div>
+    </body>
+</html>
+
