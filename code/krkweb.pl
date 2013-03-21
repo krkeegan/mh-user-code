@@ -55,6 +55,9 @@ sub html5WebApp {
 			&::print_log("[JQuery_Web] Error object jq_state eval $@") if $@;
 			#package Insteon::BaseObject;
         }
+        else{
+        	$state = '';
+        }
 
     }
     $html5_state .= "$item,$state|";
