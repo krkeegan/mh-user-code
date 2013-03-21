@@ -121,7 +121,7 @@ EOF
     } else {
         ##Generic Items
         @item_states = $object->get_states;
-	if ((scalar(@item_states) > 0) && (@item_states[0] ne '') ) { #Generic item has states
+	if ((scalar(@item_states) > 0) && ($item_states[0] ne '') ) { #Generic item has states
 		$html_item_list .= <<EOF;
                     <div data-role="collapsible" data-collapsed="true">
                         <h3>
@@ -287,7 +287,7 @@ sub mobile_log {
     }
     for my $l (@entries) {
         ##Put Date and Time on Top Line and Bracketed Stuff to right
-        $l =~ s/(\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d)  (\[.{1,30}\])?/<p>\1 <span style="float: right;">\2<\/span><\/p>\n<p>/ig;
+        $l =~ s/(\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d)  (\[.{1,30}\])?/<p>$1 <span style="float: right;">$2<\/span><\/p>\n<p>/ig;
         $l =~ s/(WARN)/<strong>WARN<\/strong>/g;
         $html .= <<EOF;
                     <li data-theme="c">
