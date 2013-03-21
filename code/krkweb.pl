@@ -7,7 +7,7 @@
 # 2013-01-03 Import from my tailored iPhone.pl
 
 ## The main routine
-# takes 2 arguments, group name, and div type
+# takes 2 arguments, group name, and output type
 sub html5WebApp { 
   my ($list_name, $output) = @_; 
   my @objects = &list_objects_by_group($list_name, 1);
@@ -45,14 +45,6 @@ sub html5WebApp {
     next if $object->{hidden};
 
 	my $state = $object->state();
-    #Weather items should be 0 not unk if empty
-    if ($item =~ /^w_/){
-        $state = '0' unless $state;
-        $state = '0' if ($state eq "");
-    }else {
-        $state = 'unk' if ($state eq "");
-        $state = 'unk' unless $state;
-    }
 
     if ($object->isa('Group')) {
         ###fix state, if reset MH reports groups as off even when a member is on
@@ -63,11 +55,7 @@ sub html5WebApp {
 			&::print_log("[JQuery_Web] Error object jq_state eval $@") if $@;
 			#package Insteon::BaseObject;
         }
-        elsif ($item =~ /^w_/){
-            $state = "";
-        } else {
-            $state = &group_state($object) ? "on" : "off";
-        }
+
     }
     $html5_state .= "$item,$state|";
     my $html_state_id = $item . "_state";
