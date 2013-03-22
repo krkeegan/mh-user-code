@@ -9,85 +9,80 @@
 ## The main routine
 # takes 2 arguments, group name, and output type
 sub html5WebApp { 
-  my ($list_name, $output) = @_; 
-  my @objects = &list_objects_by_group($list_name, 1);
-  my $html = ""; 
-  my $html_group = "";
-  my $html_group_list ="";
-  my $html_group_list_no_act ="";
-  my $html_item_list= "";
-  my $html5_state;
-  my $object;
+	my ($list_name, $output) = @_; 
+	my @objects = &list_objects_by_group($list_name, 1);
+	my $html = ""; 
+	my $html_group = "";
+	my $html_group_list ="";
+	my $html_group_list_no_act ="";
+	my $html_item_list= "";
+	my $html5_state;
+	my $object;
 
-  # Create a hash to sort items numerically
-  # Items should be named to look like 1-First Floor
-  # the number and dash are removed
-  my %hash_names;
-  foreach my $item (@objects) { 
-	my $name = &get_object_by_name($item)->{label};
-	#If we have a nicely entered name use that, otherwise make things nicer
-	if ($name eq '' or $name eq undef) {
-		$name = &pretty_object_name($item);
+	# Create a hash to sort items numerically
+	# Items should be named to look like 1-First Floor
+	# the number and dash are removed
+	my %hash_names;
+	foreach my $item (@objects) { 
+		my $name = &get_object_by_name($item)->{label};
+		#If we have a nicely entered name use that, otherwise make things nicer
+		if ($name eq '' or $name eq undef) {
+			$name = &pretty_object_name($item);
+		}
+		$hash_names{$name} = $item; 
 	}
-	$hash_names{$name} = $item; 
-  }
 
-  # This sorts the items and then creates the appropriate html
-  for my $key (sort {$a<=>$b} keys %hash_names) {
-    my $item = $hash_names{$key};
-    my $name = $key;
-    $object = &get_object_by_name($item);
-    my @item_states = ();
-    
-    #create a usuable name without the dollar sign
-    $item =~ s/^\$//;
+	# This sorts the items and then creates the appropriate html
+	for my $key (sort {$a<=>$b} keys %hash_names) {
+		my $item = $hash_names{$key};
+		my $name = $key;
+		$object = &get_object_by_name($item);
+		my @item_states = ();
 
-    next if $object->{hidden};
+		#create a usuable name without the dollar sign
+		$item =~ s/^\$//;
 
-	my $state = $object->state();
+		next if $object->{hidden};
 
-    if ($object->isa('Group')) {
-        ###fix state, if reset MH reports groups as off even when a member is on
-        # Weather items don't have states
-        if ($$object{jq_state}){
-        		#package main;
-			$state = eval ($$object{jq_state});
-			&::print_log("[JQuery_Web] Error object jq_state eval $@") if $@;
-			#package Insteon::BaseObject;
-        }
-        else{
-        	$state = '';
-        }
+		my $state = $object->state();
 
-    }
-    $html5_state .= "$item,$state|";
-    my $html_state_id = $item . "_state";
+		if ($object->isa('Group')) {
+			if ($$object{jq_state}){
+				$state = eval ($$object{jq_state});
+				&::print_log("[JQuery_Web] Error object jq_state eval $@") if $@;
+			}
+			else{
+				$state = '';
+			}
+		}
+		$html5_state .= "$item,$state|";
+		my $html_state_id = $item . "_state";
 
-    # Remove sort numerals
-    $name =~ s/(^\d*-)//g;
-    
-    # Add divider
-    if ($name =~ /^#/){
-        $html_group_list .= insert_divider();
-        $name =~ s/(^#)//g;
-    }
-    
-    ### Item specific tasks
-    if ($object->isa('Group')) {
-    	#Create group html entry
-        $html_group_list .= insert_list_item($name, "$html_state_id", $state, "#page_$item");
-        #Create appropriate html for group members recursively
-        if ($output eq "states"){
-            $html5_state .= html5WebApp($item,'states');
-        } else {
-            $html_group .= html5WebApp($item,'subgroup');    
-        }
-    } elsif ($object->isa('Insteon::BaseObject')) {
-    	## I would like to destroy this whole section in favor of simply relying on the broadcast
-    	## states provided by each item.
-        my @item_states = ();
-        @item_states = $object->get_states;
-          $html_item_list .= <<EOF;
+		# Remove sort numerals
+		$name =~ s/(^\d*-)//g;
+
+		# Add divider
+		if ($name =~ /^#/){
+			$html_group_list .= insert_divider();
+			$name =~ s/(^#)//g;
+		}
+
+		### Item specific tasks
+		if ($object->isa('Group')) {
+			#Create group html entry
+			$html_group_list .= insert_list_item($name, "$html_state_id", $state, "#page_$item");
+			#Create appropriate html for group members recursively
+			if ($output eq "states"){
+				$html5_state .= html5WebApp($item,'states');
+			} else {
+				$html_group .= html5WebApp($item,'subgroup');
+			}
+		} elsif ($object->isa('Insteon::BaseObject')) {
+			## I would like to destroy this whole section in favor of simply relying on the broadcast
+			## states provided by each item.
+			  my @item_states = ();
+			  @item_states = $object->get_states;
+			    $html_item_list .= <<EOF;
                     <div data-role="collapsible" data-collapsed="true">
                         <h3>
                             $name
@@ -95,9 +90,9 @@ sub html5WebApp {
                         </h3>
                         <div data-role="controlgroup" data-mini="false" data-type="horizontal">
 EOF
-          #Populate states
-          if ($object->isa('Insteon::DimmableLight')){
-            $html_item_list .= <<EOF;
+			#Populate states
+			if ($object->isa('Insteon::DimmableLight')){
+				$html_item_list .= <<EOF;
                             <a href="#" data-role="button" onClick="setState('$item','on');" data-theme="b">on</a>
                             <a href="#" data-role="button" onClick="setState('$item','80');" data-theme="b">80</a>
                             <a href="#" data-role="button" onClick="setState('$item','60');" data-theme="b">60</a>
@@ -105,24 +100,24 @@ EOF
                             <a href="#" data-role="button" onClick="setState('$item','20');" data-theme="b">20</a>
                             <a href="#" data-role="button" onClick="setState('$item','off');" data-theme="b">off</a>
 EOF
-          } else {
-              #my @item_states = @{$object->{states}}; Already have states from above
-              for my $s (@item_states) {
-                next if ($s =~ m:\d*/\d*.*:);
-                $html_item_list .= <<EOF;
+			} else {
+				#my @item_states = @{$object->{states}}; Already have states from above
+				for my $s (@item_states) {
+					next if ($s =~ m:\d*/\d*.*:);
+					$html_item_list .= <<EOF;
                             <a href="#" data-role="button" onClick="setState('$item','$s');" data-theme="b">$s</a>
 EOF
-              }              
-          }
-          $html_item_list .= <<EOF;
+				}              
+			}
+			$html_item_list .= <<EOF;
                         </div>
                     </div>
 EOF
-    } else {
-        ##Generic Items
-        @item_states = $object->get_states;
-	if ((scalar(@item_states) > 0) && ($item_states[0] ne '') ) { #Generic item has states
-		$html_item_list .= <<EOF;
+		} else {
+			##Generic Items
+			@item_states = $object->get_states;
+			if ((scalar(@item_states) > 0) && ($item_states[0] ne '') ) { #Generic item has states
+				$html_item_list .= <<EOF;
                     <div data-role="collapsible" data-collapsed="true">
                         <h3>
                             $name
@@ -130,44 +125,44 @@ EOF
                         </h3>
                         <div data-role="controlgroup" data-mini="false" data-type="horizontal">
 EOF
-              for my $s (@item_states) {
-                #next if ($s =~ m:\d*/\d*.*:);
-                $html_item_list .= <<EOF;
+				for my $s (@item_states) {
+					#next if ($s =~ m:\d*/\d*.*:);
+					$html_item_list .= <<EOF;
                             <a href="#" data-role="button" onClick="setState('$item','$s');" data-theme="b">$s</a>
 EOF
-              }              
-          $html_item_list .= <<EOF;
+				}
+				$html_item_list .= <<EOF;
                         </div>
                     </div>
 EOF
-	}
-	else { #No item states
-		$html_group_list_no_act .= insert_list_item($name, "$html_state_id", $state);
-	}
-     } #End item specific HTML
-  } #End loop of objects
+			}
+			else { #No item states
+				$html_group_list_no_act .= insert_list_item($name, "$html_state_id", $state);
+			}
+		} #End item specific HTML
+	} #End loop of objects
 
-  ## Build basic page structure and insert item html
-  my $title;
-  $object = &get_object_by_name($list_name);
-  $title = $object->{label};
-  $title = &pretty_object_name($list_name) if ($title eq '' or $title eq undef);
-  #KRK added to remove sort numerals and dividers
-  $title =~ s/(^\d*-)//g;
-  $title =~ s/(^#)//g;
-  my $id = $list_name;
-  $id =~ s/^\$//;
-  #id is variable name, title is the pretty name
-  my $footer = &mobile_footer;
-  if ($output eq "main" || $output eq "subgroup") {
-    return insert_page($id, $title, $html_group_list, $html_group_list_no_act, 
+	## Build basic page structure and insert item html
+	my $title;
+	$object = &get_object_by_name($list_name);
+	$title = $object->{label};
+	$title = &pretty_object_name($list_name) if ($title eq '' or $title eq undef);
+	#KRK added to remove sort numerals and dividers
+	$title =~ s/(^\d*-)//g;
+	$title =~ s/(^#)//g;
+	my $id = $list_name;
+	$id =~ s/^\$//;
+	#id is variable name, title is the pretty name
+	my $footer = &mobile_footer;
+	if ($output eq "main" || $output eq "subgroup") {
+		return insert_page($id, $title, $html_group_list, $html_group_list_no_act, 
 		$html_item_list, $html_group, $output);
-  } elsif ($output eq "states"){
-      return $html5_state;
-  } else {
-    $html = 'Error no layer type selected';
-  }
-  return &html_page('', $html);
+	} elsif ($output eq "states"){
+		return $html5_state;
+	} else {
+		$html = 'Error no layer type selected';
+	}
+	return &html_page('', $html);
 }
 
 sub insert_divider {
