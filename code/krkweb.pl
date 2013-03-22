@@ -159,65 +159,9 @@ EOF
   $id =~ s/^\$//;
   #id is variable name, title is the pretty name
   my $footer = &mobile_footer;
-  if ($output eq "main") {
-    $html = <<EOF;
-        <div data-role="page" id="page_$id">
-            <div data-theme="a" data-role="header">
-                <a data-role="button" href="#" id="refresh_time" 
-                onClick="updateState();" class="ui-btn-left">
-                    
-                </a>
-                <h3>
-                    $title
-                </h3>
-            </div>
-            <div data-role="content">
-                <ul data-role="listview" data-divider-theme="b" data-inset="true">
-$html_group_list
-                </ul>
-                <ul data-role="listview" data-divider-theme="b" data-inset="true">
-$html_group_list_no_act
-                </ul>
-                <div data-role="collapsible-set" data-theme="d" data-content-theme="b">
-$html_item_list
-                </div>
-            </div>
-$footer
-        </div>
-$html_group
-        <script>
-            //App custom javascript
-        </script>
-EOF
-    return $html;
-  } elsif ($output eq "subgroup"){
-    $html = <<EOF;
-        <div data-role="page" id="page_$id">
-            <div data-theme="a" data-role="header">
-                <a data-role="button" data-rel="back" data-transition="slide" href="#page1"
-                data-icon="arrow-l" data-iconpos="left" class="ui-btn-left">
-                    Back
-                </a>
-                <h3>
-                    $title
-                </h3>
-            </div>
-            <div data-role="content">
-                <ul data-role="listview" data-divider-theme="b" data-inset="true">
-$html_group_list
-                </ul>
-                <ul data-role="listview" data-divider-theme="b" data-inset="true">
-$html_group_list_no_act
-                </ul>
-                <div data-role="collapsible-set" data-theme="d" data-content-theme="b">
-$html_item_list
-                </div>
-            </div>
-$footer
-        </div>
-$html_group
-EOF
-    return $html;
+  if ($output eq "main" || $output eq "subgroup") {
+    return insert_page($id, $title, $html_group_list, $html_group_list_no_act, 
+		$html_item_list, $html_group, $output);
   } elsif ($output eq "states"){
       return $html5_state;
   } else {
@@ -256,19 +200,50 @@ EOF
 	return $output;
 }
 
-sub group_state {
-    my ($group) = @_;
-	foreach my $item ($group->list){
-        if ($item->isa('Group')){
-            if (&group_state($item)){
-                return 1;
-            }
-        } elsif ($item->state ne 'off' && $item->state ne 'off_fast'
-            && $item->state ne '0' && $item->state ne '0%'){
-			return 1;
-		}
+sub insert_page{
+	my ($id, $title, $html_group_list, $html_group_list_no_act, 
+		$html_item_list, $html_group, $type) = @_;
+	my $footer = mobile_footer();
+	my $output = <<EOF;
+        <div data-role="page" id="page_$id">
+            <div data-theme="a" data-role="header">
+EOF
+	if ($type eq "main"){
+		$output .= <<EOF;
+                <a data-role="button" href="#" id="refresh_time" 
+                onClick="updateState();" class="ui-btn-left">
+EOF
+	} else {
+		$output .= <<EOF;
+                <a data-role="button" data-rel="back" data-transition="slide" href="#page1"
+                data-icon="arrow-l" data-iconpos="left" class="ui-btn-left">
+                    Back
+EOF
 	}
-    return 0;
+	$output .= <<EOF;
+                </a>
+                    
+                </a>
+                <h3>
+                    $title
+                </h3>
+            </div>
+            <div data-role="content">
+                <ul data-role="listview" data-divider-theme="b" data-inset="true">
+$html_group_list
+                </ul>
+                <ul data-role="listview" data-divider-theme="b" data-inset="true">
+$html_group_list_no_act
+                </ul>
+                <div data-role="collapsible-set" data-theme="d" data-content-theme="b">
+$html_item_list
+                </div>
+            </div>
+$footer
+        </div>
+$html_group
+EOF
+	return $output;
 }
 
 sub mobile_log {
