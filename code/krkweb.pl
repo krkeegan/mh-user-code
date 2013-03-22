@@ -77,42 +77,6 @@ sub html5WebApp {
 			} else {
 				$html_group .= html5WebApp($item,'subgroup');
 			}
-		} elsif ($object->isa('Insteon::BaseObject')) {
-			## I would like to destroy this whole section in favor of simply relying on the broadcast
-			## states provided by each item.
-			  my @item_states = ();
-			  @item_states = $object->get_states;
-			    $html_item_list .= <<EOF;
-                    <div data-role="collapsible" data-collapsed="true">
-                        <h3>
-                            $name
-                            <span style="float: right;" id="$html_state_id">$state</span>
-                        </h3>
-                        <div data-role="controlgroup" data-mini="false" data-type="horizontal">
-EOF
-			#Populate states
-			if ($object->isa('Insteon::DimmableLight')){
-				$html_item_list .= <<EOF;
-                            <a href="#" data-role="button" onClick="setState('$item','on');" data-theme="b">on</a>
-                            <a href="#" data-role="button" onClick="setState('$item','80');" data-theme="b">80</a>
-                            <a href="#" data-role="button" onClick="setState('$item','60');" data-theme="b">60</a>
-                            <a href="#" data-role="button" onClick="setState('$item','40');" data-theme="b">40</a>
-                            <a href="#" data-role="button" onClick="setState('$item','20');" data-theme="b">20</a>
-                            <a href="#" data-role="button" onClick="setState('$item','off');" data-theme="b">off</a>
-EOF
-			} else {
-				#my @item_states = @{$object->{states}}; Already have states from above
-				for my $s (@item_states) {
-					next if ($s =~ m:\d*/\d*.*:);
-					$html_item_list .= <<EOF;
-                            <a href="#" data-role="button" onClick="setState('$item','$s');" data-theme="b">$s</a>
-EOF
-				}              
-			}
-			$html_item_list .= <<EOF;
-                        </div>
-                    </div>
-EOF
 		} else {
 			##Generic Items
 			@item_states = $object->get_states;
